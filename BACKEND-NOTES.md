@@ -1,229 +1,51 @@
-/**
- * AnyAccess frontend controller.
- * Read in order: configuration → cards → navigation → actions → initialization.
- * servers.js must load first. No framework or package installation is required.
- *
- * SECURITY: the access code and state below only simulate the website flow.
- * They cannot protect a real server. Python must authenticate and authorize
- * every real server request when backend integration is added.
- */
+# Python backend integration notes
 
-const DEMO_ACCESS_CODE = "ANYACCESS";
+This document proposes the next phase. None of these endpoints exists in this
+package. Agree on the endpoint names and payloads as a team before implementing.
+Django is the previously selected backend direction; the frontend remains plain
+HTML, CSS, and JavaScript.
 
-// In-memory state intentionally resets when the page is refreshed.
-const state = {
-  hasDemoAccess: false,
-};
+## Suggested endpoint contract
 
-/** Find an element by the ID used in index.html. */
-function getElement(id) {
-  return document.getElementById(id);
-}
+| Method and path | Responsibility |
+| --- | --- |
+| `POST /api/login/` | Verify the user's credentials and establish a server-side session |
+| `GET /api/session/` | Return the current signed-in user, or 401 |
+| `POST /api/logout/` | Invalidate the session |
+| `GET /api/servers/` | Return only servers assigned to the signed-in user |
+| `POST /api/servers/<id>/sessions/` | Check permission and create a remote desktop session |
+| `DELETE /api/sessions/<id>/` | Authorize and close an active remote session |
 
-/** Insert text safely into the server-card HTML template. */
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, (character) => {
-    const entities = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;",
-    };
-    return entities[character];
-  });
-}
+The access-code page can remain visually simple, but a shared static code must
+not become production authentication. Decide whether each user receives a unique
+revocable credential or uses Django username/password authentication. If using
+passwords, rely on Django's authentication and password handling.
 
-// ── SERVER CARDS ──────────────────────────────────────────────────────
+## Where the frontend changes
 
-/** Generate one card. The SVG icon comes only from our trusted local catalog. */
-function createServerCard(server) {
-  return `
-    <article class="card">
-      <div class="card-top">
-        <div class="os-icon ${escapeHtml(server.id)}">
-          <svg viewBox="0 0 24 24" aria-hidden="true">${server.icon}</svg>
-        </div>
-        <span class="tag">Demo server</span>
-      </div>
-      <h2>${escapeHtml(server.name)}</h2>
-      <p class="description">${escapeHtml(server.description)}</p>
-      <div class="server-meta">
-        <span>Connection</span>
-        <strong>Not configured</strong>
-      </div>
-      <button
-        class="primary"
-        data-connect="${escapeHtml(server.id)}"
-        aria-label="Connect to ${escapeHtml(server.name)}"
-      >
-        Connect <span aria-hidden="true">↗</span>
-      </button>
-    </article>
-  `;
-}
+1. `handleLogin()` calls the login API instead of comparing a code in JavaScript.
+2. Initialization checks `/api/session/` instead of trusting client state.
+3. Load the server catalog from `/api/servers/` instead of `DEMO_SERVERS`.
+4. The Connect handler requests a session for the chosen server.
+5. Replace the desktop placeholder with the selected gateway's browser client.
+6. Disconnect closes the remote session; logout also invalidates the login session.
+7. Display loading, denied-access, unavailable-server, and expired-session states.
 
-/** Rebuild the visible cards after the search input changes. */
-function renderServerCards(searchText = "") {
-  const query = searchText.trim().toLowerCase();
-  const matchingServers = DEMO_SERVERS.filter((server) => {
-    const searchableText = `${server.name} ${server.os}`.toLowerCase();
-    return searchableText.includes(query);
-  });
+Use Django session cookies and CSRF protection for state-changing requests when
+using cookie authentication. Prefer serving frontend and backend on the same
+origin to keep integration simple. Reject unauthorized server/session IDs even
+when someone manually changes a URL or sends a request outside the UI.
 
-  getElement("cards").innerHTML = matchingServers.map(createServerCard).join("");
-  getElement("empty").hidden = matchingServers.length > 0;
+Never send RDP passwords to the browser. Keep credentials and VM configuration
+on the server. Return only the safe fields the frontend needs. Keep icon markup
+local and choose it by OS identifier rather than accepting SVG/HTML from an API.
 
-  // Calculate the count so adding a server does not require editing the HTML.
-  document.querySelector(".count").textContent = String(DEMO_SERVERS.length).padStart(2, "0");
-}
+## Remote desktop integration boundary
 
-function clearSearch() {
-  getElement("search").value = "";
-  renderServerCards();
-}
+A browser cannot open a native RDP connection just by loading an iframe or an IP
+address. A compatible browser remote desktop gateway/client must bridge the web
+session to the Windows VM. The Python backend manages identity, permission, and
+session creation; the gateway handles desktop transport and input.
 
-// ── PAGE NAVIGATION ───────────────────────────────────────────────────
-
-/** Hash routes work on any static server: #login, #dashboard, #desktop/windows. */
-function showCurrentPage() {
-  const route = window.location.hash || "#login";
-
-  // This is a demo navigation guard, NOT a security boundary.
-  if (!state.hasDemoAccess && route !== "#login") {
-    window.location.hash = "login";
-    return;
-  }
-
-  const isDesktopRoute = route.startsWith("#desktop/");
-  const selectedServerId = route.slice("#desktop/".length);
-  const selectedServer = isDesktopRoute
-    ? DEMO_SERVERS.find((server) => server.id === selectedServerId)
-    : null;
-
-  if (isDesktopRoute && !selectedServer) {
-    window.location.hash = "dashboard";
-    return;
-  }
-
-  if (!["#login", "#dashboard"].includes(route) && !isDesktopRoute) {
-    window.location.hash = state.hasDemoAccess ? "dashboard" : "login";
-    return;
-  }
-
-  const activePage = isDesktopRoute ? "desktop" : route.slice(1);
-  for (const pageId of ["login", "dashboard", "desktop"]) {
-    getElement(pageId).hidden = pageId !== activePage;
-  }
-
-  getElement("logout").hidden = activePage === "login";
-  if (selectedServer) {
-    getElement("desktop-name").textContent = selectedServer.name;
-    getElement("fullscreen-error").textContent = "";
-  }
-
-  const pageTitle = selectedServer
-    ? selectedServer.name
-    : activePage === "dashboard" ? "Servers" : "Log in";
-  document.title = `${pageTitle} — AnyAccess`;
-}
-
-// ── LOGIN, LOGOUT, AND DESKTOP ACTIONS ─────────────────────────────────
-
-function handleLogin(event) {
-  event.preventDefault(); // Keep the browser from submitting/reloading the page.
-  const codeInput = getElement("code");
-
-  if (codeInput.value.trim() !== DEMO_ACCESS_CODE) {
-    getElement("code-error").textContent = `Use ${DEMO_ACCESS_CODE} to enter the preview.`;
-    codeInput.setAttribute("aria-invalid", "true");
-    return;
-  }
-
-  state.hasDemoAccess = true;
-  getElement("code-error").textContent = "";
-  codeInput.removeAttribute("aria-invalid");
-  codeInput.value = "";
-  window.location.hash = "dashboard";
-}
-
-async function exitFullscreenIfNeeded() {
-  if (document.fullscreenElement) {
-    try {
-      await document.exitFullscreen();
-    } catch {
-      // Navigation can still proceed if the browser refuses this request.
-    }
-  }
-}
-
-async function returnToDashboard() {
-  await exitFullscreenIfNeeded();
-  // Later: ask the backend/gateway to close the active remote session here.
-  window.location.hash = "dashboard";
-}
-
-async function handleLogout() {
-  await exitFullscreenIfNeeded();
-  // Later: also invalidate the real session in the Python backend.
-  state.hasDemoAccess = false;
-  clearSearch();
-  window.location.hash = "login";
-}
-
-async function toggleFullscreen() {
-  try {
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
-    } else {
-      // Include the toolbar so Disconnect remains available in fullscreen.
-      await getElement("desktop").requestFullscreen();
-    }
-  } catch {
-    getElement("fullscreen-error").textContent =
-      "Fullscreen is unavailable in this browser. You can still use the desktop view.";
-  }
-}
-
-// ── EVENT LISTENERS ───────────────────────────────────────────────────
-
-function registerEventListeners() {
-  getElement("login-form").addEventListener("submit", handleLogin);
-  getElement("fill-code").addEventListener("click", () => {
-    getElement("code").value = DEMO_ACCESS_CODE;
-    getElement("code").focus();
-  });
-
-  getElement("search").addEventListener("input", (event) => {
-    renderServerCards(event.target.value);
-  });
-  getElement("clear-search").addEventListener("click", () => {
-    clearSearch();
-    getElement("search").focus();
-  });
-
-  // One listener on the parent handles all cards, including newly rendered ones.
-  getElement("cards").addEventListener("click", (event) => {
-    const connectButton = event.target.closest("[data-connect]");
-    if (connectButton) {
-      window.location.hash = `desktop/${connectButton.dataset.connect}`;
-    }
-  });
-
-  getElement("back").addEventListener("click", returnToDashboard);
-  getElement("disconnect").addEventListener("click", returnToDashboard);
-  getElement("logout").addEventListener("click", handleLogout);
-  getElement("fullscreen").addEventListener("click", toggleFullscreen);
-
-  document.addEventListener("fullscreenchange", () => {
-    getElement("fullscreen").textContent = document.fullscreenElement
-      ? "⛶ Exit fullscreen"
-      : "⛶ Fullscreen";
-  });
-  window.addEventListener("hashchange", showCurrentPage);
-}
-
-// Scripts load at the end of <body>, so all HTML elements already exist here.
-registerEventListeners();
-renderServerCards();
-showCurrentPage();
+The gateway choice and your laptop/VM setup remain a separate step. Do not add
+fake online status or pretend a connection succeeded before that integration.
