@@ -49,3 +49,4 @@ session creation; the gateway handles desktop transport and input.
 
 The gateway choice and your laptop/VM setup remain a separate step. Do not add
 fake online status or pretend a connection succeeded before that integration.
+most important step
