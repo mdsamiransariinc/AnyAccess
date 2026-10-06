@@ -1,0 +1,8 @@
+# Combine with compose.yaml. HTTP redirects to HTTPS on port 8443.
+services:
+  proxy:
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:8443:443"
+    volumes:
+      - ./deploy/nginx.https.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/certs:/certs:ro

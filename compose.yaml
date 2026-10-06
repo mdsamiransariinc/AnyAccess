@@ -1,0 +1,68 @@
+name: anyaccess
+services:
+  migrate:
+    build: .
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - app-data:/data
+    command: ["python", "manage.py", "migrate", "--noinput"]
+    restart: "no"
+  web:
+    build: .
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+      GUACAMOLE_URL: http://guacamole:8080/guacamole
+    volumes:
+      - app-data:/data
+    command: ["sh", "-c", "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --threads 2 --timeout 60"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  cleanup:
+    build: .
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+      GUACAMOLE_URL: http://guacamole:8080/guacamole
+    volumes:
+      - app-data:/data
+    command: ["python", "manage.py", "reap_sessions", "--loop"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+  guacd:
+    image: guacamole/guacd:1.6.0
+    restart: unless-stopped
+  guacamole:
+    image: guacamole/guacamole:1.6.0
+    environment:
+      GUACD_HOSTNAME: guacd
+      JSON_ENABLED: "true"
+      JSON_SECRET_KEY: ${GUACAMOLE_JSON_SECRET:?Run scripts/setup_env.py first}
+    depends_on:
+      - guacd
+    restart: unless-stopped
+  proxy:
+    image: nginx:1.28-alpine
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${HTTP_PORT:-8080}:80"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      web:
+        condition: service_healthy
+      guacamole:
+        condition: service_started
+    restart: unless-stopped
+volumes:
+  app-data:

@@ -1,0 +1,23 @@
+{% extends 'portal/base.html' %}
+{% block title %}Log in — AnyAccess{% endblock %}
+{% block content %}
+<main id="login">
+  <section class="login-panel">
+    <div class="lock-icon" aria-hidden="true">A</div>
+    <p class="eyebrow">YOUR WORKSPACE, ANYWHERE</p>
+    <h1>Welcome to AnyAccess.</h1>
+    <p class="muted intro">Sign in to access your assigned servers.</p>
+    <form method="post">
+      {% csrf_token %}
+      {% if form.errors %}<p class="error" role="alert">The username or password is incorrect.</p>{% endif %}
+      <label for="username">Username</label>
+      <input class="form-input" id="username" name="username" autocomplete="username" required autofocus value="{{ form.username.value|default:'' }}">
+      <label for="password">Password</label>
+      <input class="form-input" id="password" name="password" type="password" autocomplete="current-password" required>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button class="primary" type="submit">Log in →</button>
+    </form>
+    <p class="demo-help">Use the account provided by your administrator.</p>
+  </section>
+</main>
+{% endblock %}

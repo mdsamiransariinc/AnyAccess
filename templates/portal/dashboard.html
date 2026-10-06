@@ -1,0 +1,26 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+{% block title %}Servers — AnyAccess{% endblock %}
+{% block content %}
+<main id="dashboard">
+  <div class="section-heading">
+    <div><p class="eyebrow">WORKSPACE</p>
+      <h1>Available servers<span class="count">{{ servers|length }}</span></h1>
+      <p class="muted">Choose a server to open your remote workspace.</p>
+    </div>
+    <label class="search"><input id="server-search" type="search" placeholder="Search servers…" aria-label="Search servers"></label>
+  </div>
+  <div class="cards">
+    {% for server in servers %}
+    <article class="card" data-search="{{ server.name|lower }} {{ server.get_operating_system_display|lower }}">
+      <div class="card-top"><div class="os-icon {{ server.operating_system }}" aria-hidden="true">▣</div><span class="tag">{{ server.protocol|upper }}</span></div>
+      <h2>{{ server.name }}</h2><p class="description">{{ server.description|default:server.get_operating_system_display }}</p>
+      <div class="server-meta"><span>Access</span><strong>Assigned · connection not checked</strong></div>
+      <a class="primary" href="{% url 'desktop' server.pk %}">Connect <span aria-hidden="true">↗</span></a>
+    </article>
+    {% empty %}<p>No servers are assigned to your account. Ask your administrator to add one.</p>{% endfor %}
+  </div>
+  <p id="search-empty" class="muted" hidden>No servers match this search.</p>
+</main>
+{% endblock %}
+{% block scripts %}<script src="{% static 'portal/dashboard.js' %}" defer></script>{% endblock %}

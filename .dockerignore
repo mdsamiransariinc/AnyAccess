@@ -1,0 +1,10 @@
+.env
+.env.*
+data
+staticfiles
+.venv
+__pycache__
+.git
+backups
+*.zip
+deploy/certs/

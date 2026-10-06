@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}AnyAccess{% endblock %}</title>
+  <link rel="icon" href="{% static 'portal/favicon.svg' %}">
+  <link rel="stylesheet" href="{% static 'portal/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'portal/backend.css' %}">
+</head>
+<body>
+<header>
+  <a class="brand" href="{% url 'dashboard' %}"><span class="mark">A</span>Any<span class="brand-light">Access</span></a>
+  <div class="header-right">
+    {% if user.is_authenticated %}
+      <span>{{ user.username }}</span>
+      {% if user.is_superuser %}<a href="/admin/">Manage servers</a>{% endif %}
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}<button class="text-button" type="submit">Log out ↗</button>
+      </form>
+    {% else %}<span class="preview-label">Remote workspace</span>{% endif %}
+  </div>
+</header>
+{% block content %}{% endblock %}
+<footer><span>AnyAccess</span><span>Your remote workspace.</span></footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,25 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+{% block title %}{{ server.name }} — AnyAccess{% endblock %}
+{% block content %}
+<main id="desktop" data-start-url="{% url 'start-session' server.pk %}">
+  <div class="desktop-toolbar">
+    <a class="text-button" id="back" href="{% url 'dashboard' %}">← Servers</a>
+    <div class="desktop-title"><strong>{{ server.name }}</strong><span id="connection-status" role="status">Starting…</span></div>
+    <div class="desktop-actions">
+      <button id="cad" class="secondary" type="button" disabled>Ctrl + Alt + Del</button>
+      <button id="fullscreen" class="secondary" type="button">⛶ Fullscreen</button>
+      <button id="disconnect" class="secondary" type="button">Disconnect</button>
+    </div>
+  </div>
+  <div id="desktop-notice" class="desktop-notice" role="status">Preparing the connection…</div>
+  <!-- Guacamole mounts its real display here. No VM IP/password enters HTML. -->
+  <section id="remote-screen" tabindex="0" aria-label="Remote desktop; click here before typing"></section>
+  <p class="muted keyboard-help">Click the desktop to send keyboard input. Use Disconnect to end remote access. Browser shortcuts may remain local.</p>
+  <form id="csrf-form" hidden>{% csrf_token %}</form>
+</main>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/all.min.js' %}"></script>
+<script src="{% static 'portal/desktop.js' %}" defer></script>
+{% endblock %}
