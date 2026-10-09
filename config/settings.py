@@ -69,3 +69,21 @@ GUACAMOLE_JSON_SECRET = os.environ["GUACAMOLE_JSON_SECRET"]
 CREDENTIAL_KEY = os.environ["CREDENTIAL_KEY"]
 REMOTE_SESSION_SECONDS = 8 * 60 * 60
 REMOTE_HEARTBEAT_GRACE = 120
+# Show CSRF rejection reasons in Docker logs without enabling DEBUG.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "csrf_console": {
+            "class": "logging.StreamHandler",
+            "level": "WARNING",
+        },
+    },
+    "loggers": {
+        "django.security.csrf": {
+            "handlers": ["csrf_console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+    },
+}
