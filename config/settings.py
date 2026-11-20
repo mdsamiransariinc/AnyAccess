@@ -60,7 +60,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_SECURE = origin.scheme == "https"
 CSRF_COOKIE_SECURE = origin.scheme == "https"
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_REFERRER_POLICY = "no-referrer"
+SECURE_REFERRER_POLICY = "same-origin"
 # Only trust this header because Django is private behind our nginx container.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 X_FRAME_OPTIONS = "DENY"
@@ -69,3 +69,21 @@ GUACAMOLE_JSON_SECRET = os.environ["GUACAMOLE_JSON_SECRET"]
 CREDENTIAL_KEY = os.environ["CREDENTIAL_KEY"]
 REMOTE_SESSION_SECONDS = 8 * 60 * 60
 REMOTE_HEARTBEAT_GRACE = 120
+# Show CSRF rejection reasons in Docker logs without enabling DEBUG.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "csrf_console": {
+            "class": "logging.StreamHandler",
+            "level": "WARNING",
+        },
+    },
+    "loggers": {
+        "django.security.csrf": {
+            "handlers": ["csrf_console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+    },
+}
