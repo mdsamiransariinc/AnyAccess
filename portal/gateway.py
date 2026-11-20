@@ -12,20 +12,20 @@ class GatewayError(Exception):
     pass
 
 def issue_session(user, server, django_session_key):
-    parameters = {"hostname": server.hostname, "port": str(server.port), "username": server.username}
-    if server.password_encrypted:
-        parameters["password"] = decrypt_secret(server.password_encrypted)
-    if server.protocol == "rdp":
-        parameters.update({"security": server.rdp_security, "ignore-cert": str(server.ignore_certificate).lower(),
-            "domain": server.domain, "resize-method": "display-update", "enable-drive": "false"})
-    session_id = uuid.uuid4()
-    now = timezone.now()
-    # A unique gateway identity isolates sessions, including concurrent browser tabs.
-    payload = {"username": f"anyaccess-{user.pk}-{session_id}",
-        "expires": int((now + timedelta(seconds=60)).timestamp() * 1000),
-        "connections": {server.name: {"protocol": server.protocol, "parameters": parameters}}}
     token = None
     try:
+        parameters = {"hostname": server.hostname, "port": str(server.port), "username": server.username}
+        if server.password_encrypted:
+            parameters["password"] = decrypt_secret(server.password_encrypted)
+        if server.protocol == "rdp":
+            parameters.update({"security": server.rdp_security, "ignore-cert": str(server.ignore_certificate).lower(),
+                "domain": server.domain, "resize-method": "display-update", "enable-drive": "false"})
+        session_id = uuid.uuid4()
+        now = timezone.now()
+        # A unique gateway identity isolates sessions, including concurrent browser tabs.
+        payload = {"username": f"anyaccess-{user.pk}-{session_id}",
+            "expires": int((now + timedelta(seconds=60)).timestamp() * 1000),
+            "connections": {server.name: {"protocol": server.protocol, "parameters": parameters}}}
         response = requests.post(f"{settings.GUACAMOLE_URL}/api/tokens",
             data={"data": guacamole_payload(payload)}, timeout=10)
         response.raise_for_status()

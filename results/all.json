@@ -1,0 +1,124 @@
+{
+  "group": "all",
+  "timestamp_utc": "2026-11-20T19:27:16.704999+00:00",
+  "python": "3.14.7",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "Django": "5.2.17",
+    "cryptography": "50.0.2",
+    "requests": "2.34.2",
+    "whitenoise": "6.12.0"
+  },
+  "count": 18,
+  "failures": 1,
+  "tests": [
+    {
+      "test": "tests_a4.test_component.CreateComponentTests.test_C01_create_persists_correct_session",
+      "status": "PASS",
+      "actual": "HTTP 201; rows=1; connection-42; owner bound; expiry +8h; token encrypted",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_component.CreateComponentTests.test_C02_gateway_timeout_is_safe",
+      "status": "PASS",
+      "actual": "HTTP 502; rows=0; safe error; no GET/DELETE",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_component.CreateComponentTests.test_C03_corrupt_saved_password_is_safe",
+      "status": "FAIL",
+      "actual": "HTTP 500; rows=0",
+      "detail": "Traceback (most recent call last):\n  File \u001b[35m\"C:\\Users\\verys\\OneDrive\\Desktop\\AnyAccess\\AnyAccess\\tests_a4\\test_component.py\"\u001b[0m, line \u001b[35m99\u001b[0m, in \u001b[35mtest_C03_corrupt_saved_password_is_safe\u001b[0m\n    \u001b[31mself.assertEqual\u001b[0m\u001b[1;31m(response.status_code, 502)\u001b[0m\n    \u001b[31m~~~~~~~~~~~~~~~~\u001b[0m\u001b[1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^\u001b[0m\n\u001b[1;35mAssertionError\u001b[0m: \u001b[35m500 != 502\u001b[0m\n"
+    },
+    {
+      "test": "tests_a4.test_component.RevokeComponentTests.test_C04_stop_is_persisted_and_idempotent",
+      "status": "PASS",
+      "actual": "HTTP 200/200; DELETE calls=1; revoked; ciphertext cleared",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_component.RevokeComponentTests.test_C05_gateway_failure_then_cleanup_retry",
+      "status": "PASS",
+      "actual": "HTTP 202; pending=True; cleanup revoked; ciphertext cleared; DELETE calls=2",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_component.RevokeComponentTests.test_C06_other_user_cannot_stop_session",
+      "status": "PASS",
+      "actual": "HTTP 404; DELETE calls=0; record unchanged",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.AccessUnitTests.test_U01_assigned_user_allowed",
+      "status": "PASS",
+      "actual": "access=True; lookup user=7",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.AccessUnitTests.test_U02_unassigned_user_denied",
+      "status": "PASS",
+      "actual": "access=False; assignment absent",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.AccessUnitTests.test_U03_disabled_server_denies_superuser",
+      "status": "PASS",
+      "actual": "access=False; assignment lookups=0",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DecryptUnitTests.test_U07_decrypt_known_fixture",
+      "status": "PASS",
+      "actual": "lab-password",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DecryptUnitTests.test_U08_empty_ciphertext_rejected",
+      "status": "PASS",
+      "actual": "InvalidToken",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DecryptUnitTests.test_U09_wrong_key_rejected",
+      "status": "PASS",
+      "actual": "InvalidToken",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DigestUnitTests.test_U04_known_sha256",
+      "status": "PASS",
+      "actual": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DigestUnitTests.test_U05_empty_token_digest",
+      "status": "PASS",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DigestUnitTests.test_U06_none_is_not_a_string",
+      "status": "PASS",
+      "actual": "AttributeError",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.PayloadUnitTests.test_U10_payload_matches_independent_vector",
+      "status": "PASS",
+      "actual": "Exact V1 match",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.PayloadUnitTests.test_U11_empty_object_matches_vector",
+      "status": "PASS",
+      "actual": "Exact V2 match",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.PayloadUnitTests.test_U12_short_key_rejected",
+      "status": "PASS",
+      "actual": "ValueError: GUACAMOLE_JSON_SECRET must contain 32 hexadecimal characters",
+      "detail": ""
+    }
+  ]
+}
