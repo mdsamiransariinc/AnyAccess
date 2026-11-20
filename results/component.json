@@ -1,0 +1,52 @@
+{
+  "group": "component",
+  "timestamp_utc": "2026-11-20T19:36:30.931140+00:00",
+  "python": "3.14.7",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "Django": "5.2.17",
+    "cryptography": "50.0.2",
+    "requests": "2.34.2",
+    "whitenoise": "6.12.0"
+  },
+  "count": 6,
+  "failures": 0,
+  "tests": [
+    {
+      "test": "tests_a4.test_component.CreateComponentTests.test_C01_create_persists_correct_session",
+      "status": "PASS",
+      "actual": "HTTP 201; rows=1; connection-42; owner bound; expiry +8h; token encrypted",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_component.CreateComponentTests.test_C02_gateway_timeout_is_safe",
+      "status": "PASS",
+      "actual": "HTTP 502; rows=0; safe error; no GET/DELETE",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_component.CreateComponentTests.test_C03_corrupt_saved_password_is_safe",
+      "status": "PASS",
+      "actual": "HTTP 502; rows=0; safe error; no gateway calls",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_component.RevokeComponentTests.test_C04_stop_is_persisted_and_idempotent",
+      "status": "PASS",
+      "actual": "HTTP 200/200; DELETE calls=1; revoked; ciphertext cleared",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_component.RevokeComponentTests.test_C05_gateway_failure_then_cleanup_retry",
+      "status": "PASS",
+      "actual": "HTTP 202; pending=True; cleanup revoked; ciphertext cleared; DELETE calls=2",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_component.RevokeComponentTests.test_C06_other_user_cannot_stop_session",
+      "status": "PASS",
+      "actual": "HTTP 404; DELETE calls=0; record unchanged",
+      "detail": ""
+    }
+  ]
+}

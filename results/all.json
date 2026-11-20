@@ -1,6 +1,6 @@
 {
   "group": "all",
-  "timestamp_utc": "2026-11-20T19:27:16.704999+00:00",
+  "timestamp_utc": "2026-11-20T19:33:11.518832+00:00",
   "python": "3.14.7",
   "platform": "Windows-11-10.0.26200-SP0",
   "packages": {
@@ -10,7 +10,7 @@
     "whitenoise": "6.12.0"
   },
   "count": 18,
-  "failures": 1,
+  "failures": 0,
   "tests": [
     {
       "test": "tests_a4.test_component.CreateComponentTests.test_C01_create_persists_correct_session",
@@ -26,9 +26,9 @@
     },
     {
       "test": "tests_a4.test_component.CreateComponentTests.test_C03_corrupt_saved_password_is_safe",
-      "status": "FAIL",
-      "actual": "HTTP 500; rows=0",
-      "detail": "Traceback (most recent call last):\n  File \u001b[35m\"C:\\Users\\verys\\OneDrive\\Desktop\\AnyAccess\\AnyAccess\\tests_a4\\test_component.py\"\u001b[0m, line \u001b[35m99\u001b[0m, in \u001b[35mtest_C03_corrupt_saved_password_is_safe\u001b[0m\n    \u001b[31mself.assertEqual\u001b[0m\u001b[1;31m(response.status_code, 502)\u001b[0m\n    \u001b[31m~~~~~~~~~~~~~~~~\u001b[0m\u001b[1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^\u001b[0m\n\u001b[1;35mAssertionError\u001b[0m: \u001b[35m500 != 502\u001b[0m\n"
+      "status": "PASS",
+      "actual": "HTTP 502; rows=0; safe error; no gateway calls",
+      "detail": ""
     },
     {
       "test": "tests_a4.test_component.RevokeComponentTests.test_C04_stop_is_persisted_and_idempotent",

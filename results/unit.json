@@ -1,0 +1,88 @@
+{
+  "group": "unit",
+  "timestamp_utc": "2026-11-20T19:35:16.961208+00:00",
+  "python": "3.14.7",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "Django": "5.2.17",
+    "cryptography": "50.0.2",
+    "requests": "2.34.2",
+    "whitenoise": "6.12.0"
+  },
+  "count": 12,
+  "failures": 0,
+  "tests": [
+    {
+      "test": "tests_a4.test_unit.AccessUnitTests.test_U01_assigned_user_allowed",
+      "status": "PASS",
+      "actual": "access=True; lookup user=7",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.AccessUnitTests.test_U02_unassigned_user_denied",
+      "status": "PASS",
+      "actual": "access=False; assignment absent",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.AccessUnitTests.test_U03_disabled_server_denies_superuser",
+      "status": "PASS",
+      "actual": "access=False; assignment lookups=0",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DecryptUnitTests.test_U07_decrypt_known_fixture",
+      "status": "PASS",
+      "actual": "lab-password",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DecryptUnitTests.test_U08_empty_ciphertext_rejected",
+      "status": "PASS",
+      "actual": "InvalidToken",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DecryptUnitTests.test_U09_wrong_key_rejected",
+      "status": "PASS",
+      "actual": "InvalidToken",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DigestUnitTests.test_U04_known_sha256",
+      "status": "PASS",
+      "actual": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DigestUnitTests.test_U05_empty_token_digest",
+      "status": "PASS",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.DigestUnitTests.test_U06_none_is_not_a_string",
+      "status": "PASS",
+      "actual": "AttributeError",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.PayloadUnitTests.test_U10_payload_matches_independent_vector",
+      "status": "PASS",
+      "actual": "Exact V1 match",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.PayloadUnitTests.test_U11_empty_object_matches_vector",
+      "status": "PASS",
+      "actual": "Exact V2 match",
+      "detail": ""
+    },
+    {
+      "test": "tests_a4.test_unit.PayloadUnitTests.test_U12_short_key_rejected",
+      "status": "PASS",
+      "actual": "ValueError: GUACAMOLE_JSON_SECRET must contain 32 hexadecimal characters",
+      "detail": ""
+    }
+  ]
+}
